@@ -58,31 +58,20 @@ WHAT=${BAR}-${FOO}
 ```
 
 ```php
-class MyClass{
-	use Env;
-	
-	protected $foo;
-	
-	public function __construct(){
-		// load and overwrite existing vars, require var "WHAT"
-		$this->__loadEnv(__DIR__.'/../config', '.env', ['WHAT']);
-		
-		// will not overwrite
-		$this->__addEnv(__DIR__.'/../config', '.env', false, ['WHAT']); 
-		
-		$this->foo = $_ENV['WHAT']; // -> foo-bar
-		// or
-		$this->foo = $this->__getEnv('WHAT');
-	}
-}
-```
-
-```php
 $env = new DotEnv(__DIR__.'/../config', '.env');
 $env->load(['foo']); // foo is required
 
 $foo = $env->get('FOO'); // -> bar
+$foo = $_ENV['FOO']; // -> bar
 
 $foo = $env->set('foo', 'whatever');
 $foo = $env->get('FOO'); // -> whatever
+```
+
+```php
+// avoid the global environment
+$env = (new DotEnv(__DIR__.'/../config', '.env', false))->load();
+
+$foo = $env->get('FOO'); // -> bar
+$foo = $_ENV['FOO']; // -> undefined
 ```
