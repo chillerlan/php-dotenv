@@ -201,21 +201,21 @@ class DotEnv{
 	 * @return bool
 	 */
 	public function isset(string $var):bool{
-		return
-			($this->global && (
+		return (
+				$this->global && (
 					isset($_ENV[$var])
 					|| getenv($var)
 					|| (function_exists('apache_getenv') && apache_getenv($var))
-				))
-			|| array_key_exists($var, $this->_ENV);
+				)
+			) || array_key_exists($var, $this->_ENV);
 	}
 
 	/**
 	 * @param string $var
 	 *
-	 * @return $this
+	 * @return \chillerlan\DotEnv\DotEnv
 	 */
-	public function unset(string $var){
+	public function unset(string $var):DotEnv{
 		$var = strtoupper($var);
 
 		if($this->global === true){
@@ -231,9 +231,9 @@ class DotEnv{
 	/**
 	 * use with caution!
 	 *
-	 * @return $this
+	 * @return \chillerlan\DotEnv\DotEnv
 	 */
-	public function clear(){
+	public function clear():DotEnv{
 
 		if($this->global === true){
 			$_ENV = [];
@@ -273,9 +273,9 @@ class DotEnv{
 	 * @param string[] $data
 	 * @param bool     $overwrite
 	 *
-	 * @return $this
+	 * @return \chillerlan\DotEnv\DotEnv
 	 */
-	protected function loadData(array $data, bool $overwrite){
+	protected function loadData(array $data, bool $overwrite):DotEnv{
 
 		foreach($data as $line){
 
@@ -332,10 +332,10 @@ class DotEnv{
 	/**
 	 * @param string[]|null $required - case sensitive!
 	 *
-	 * @return $this
+	 * @return \chillerlan\DotEnv\DotEnv
 	 * @throws \Exception
 	 */
-	protected function check(array $required = null){
+	protected function check(array $required = null):DotEnv{
 
 		if($required === null || empty($required)){
 			return $this;
