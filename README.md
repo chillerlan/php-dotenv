@@ -10,6 +10,8 @@ Loads contents from a `.env` file into the environment (similar to [vlucas/phpdo
 [![Packagist downloads][downloads-badge]][downloads]
 [![PayPal donate][donate-badge]][donate]
 
+[![CI][gh-action-badge]][gh-action]
+
 [packagist-badge]: https://img.shields.io/packagist/v/chillerlan/php-dotenv.svg?style=flat-square
 [packagist]: https://packagist.org/packages/chillerlan/php-dotenv
 [license-badge]: https://img.shields.io/github/license/chillerlan/php-dotenv.svg?style=flat-square
@@ -24,27 +26,26 @@ Loads contents from a `.env` file into the environment (similar to [vlucas/phpdo
 [downloads]: https://packagist.org/packages/chillerlan/php-dotenv/stats
 [donate-badge]: https://img.shields.io/badge/donate-paypal-ff33aa.svg?style=flat-square
 [donate]: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=WLYUNAT9ZTJZ4
+[gh-action-badge]: https://github.com/chillerlan/php-dotenv/workflows/CI/badge.svg
+[gh-action]: https://github.com/chillerlan/php-dotenv/actions?query=workflow%3A%22CI%22
 
 # Documentation
 
 ## Installation
 **requires [composer](https://getcomposer.org)**
 
-*composer.json* (note: replace `dev-master` with a version boundary)
+*composer.json* (note: replace `dev-master` with a [version constraint](https://getcomposer.org/doc/articles/versions.md#writing-version-constraints))
+
 ```json
 {
 	"require": {
-		"php": "^7.2",
-		"chillerlan/php-dotenv": "^1.0"
+		"php": "^7.4",
+		"chillerlan/php-dotenv": "dev-master"
 	}
 }
 ```
 
-### Manual installation
-Download the desired version of the package from [master](https://github.com/chillerlan/php-dotenv/archive/master.zip) or 
-[release](https://github.com/chillerlan/php-dotenv/releases) and extract the contents to your project folder.  After that:
-- run `composer install` to install the required dependencies and generate `/vendor/autoload.php`.
-- if you use a custom autoloader, point the namespace `chillerlan\DotEnv` to the folder `src` of the package 
+Installation via terminal: `composer require chillerlan/php-dotenv`
 
 Profit!
 

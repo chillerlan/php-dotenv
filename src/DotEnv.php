@@ -8,9 +8,17 @@
  * @author       Smiley <smiley@chillerlan.net>
  * @copyright    2018 Smiley
  * @license      MIT
+ *
+ * @noinspection PhpComposerExtensionStubsInspection
  */
 
 namespace chillerlan\DotEnv;
+
+use function apache_getenv, apache_setenv, array_key_exists, array_map, explode, file, function_exists, getenv, implode,
+	in_array, ini_get, ini_set, is_array, is_file, is_numeric, is_readable, preg_replace, preg_replace_callback, putenv,
+	rtrim, strpos, strtoupper, trim;
+
+use const DIRECTORY_SEPARATOR, FILE_IGNORE_NEW_LINES, FILE_SKIP_EMPTY_LINES, PHP_EOL;
 
 /**
  * Loads .env config files into the environment
@@ -24,28 +32,24 @@ class DotEnv{
 
 	/**
 	 * a backup environment in case everything goes downhill
-	 *
-	 * @var array
 	 */
-	protected $_ENV = [];
+	protected array $_ENV = [];
 
 	/**
 	 * Sets the global $_ENV if true. Otherwise all variables are being kept internally
 	 * in $this->_ENV to avoid leaking, making them only accessible via DotEnv::get().
-	 *
-	 * @var bool
 	 */
-	protected $global;
+	protected bool $global;
 
 	/**
-	 * @var string
+	 * the path to the .env file
 	 */
-	protected $path;
+	protected string $path;
 
 	/**
-	 * @var string
+	 * an optional file name in case it differs from ".env"
 	 */
-	protected $filename;
+	protected ?string $filename;
 
 	/**
 	 * DotEnv constructor.
@@ -97,7 +101,6 @@ class DotEnv{
 	 * @param array|null $required
 	 *
 	 * @return \chillerlan\DotEnv\DotEnv
-	 * @throws \Exception
 	 */
 	public function load(array $required = null):DotEnv{
 		return $this->loadEnv($this->path, $this->filename, true, $required, $this->global);
@@ -111,10 +114,15 @@ class DotEnv{
 	 * @param bool|null   $global
 	 *
 	 * @return \chillerlan\DotEnv\DotEnv
-	 * @throws \Exception
 	 */
-	public function loadEnv(string $path, string $filename = null, bool $overwrite = null, array $required = null, bool $global = null):DotEnv{
-		$this->global = $global;
+	public function loadEnv(
+		string $path,
+		string $filename = null,
+		bool $overwrite = null,
+		array $required = null,
+		bool $global = null
+	):DotEnv{
+		$this->global = $global ?? true;
 		$file         = rtrim($path, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.($filename ?? '.env');
 		$content      = $this->read($file);
 
@@ -155,7 +163,6 @@ class DotEnv{
 			}
 			// @codeCoverageIgnoreStart
 			elseif(function_exists('apache_getenv')){
-				/** @noinspection PhpComposerExtensionStubsInspection */
 				$env = apache_getenv($var);
 			}
 			// @codeCoverageIgnoreEnd
@@ -166,8 +173,8 @@ class DotEnv{
 	}
 
 	/**
-	 * @param string $var
-	 * @param string $value
+	 * @param string      $var
+	 * @param string|null $value
 	 *
 	 * @return \chillerlan\DotEnv\DotEnv
 	 */
@@ -183,8 +190,7 @@ class DotEnv{
 
 			// @codeCoverageIgnoreStart
 			if(function_exists('apache_setenv')){
-				/** @noinspection PhpComposerExtensionStubsInspection */
-				apache_setenv($var, $value);
+				apache_setenv($var, $value ?? '');
 			}
 			// @codeCoverageIgnoreEnd
 		}
@@ -207,7 +213,8 @@ class DotEnv{
 					|| getenv($var)
 					|| (function_exists('apache_getenv') && apache_getenv($var))
 				)
-			) || array_key_exists($var, $this->_ENV);
+			)
+			|| array_key_exists($var, $this->_ENV);
 	}
 
 	/**
@@ -248,12 +255,12 @@ class DotEnv{
 	 * @param string $file
 	 *
 	 * @return array
-	 * @throws \Exception
+	 * @throws \chillerlan\DotEnv\DotEnvException
 	 */
 	protected function read(string $file):array{
 
 		if(!is_readable($file) || !is_file($file)){
-			throw new \Exception('invalid file: '.$file);
+			throw new DotEnvException('invalid file: '.$file);
 		}
 
 		// Read file into an array of lines with auto-detected line endings
@@ -263,7 +270,7 @@ class DotEnv{
 		ini_set('auto_detect_line_endings', $autodetect);
 
 		if(!is_array($lines) || empty($lines)){
-			throw new \Exception('error while reading file: '.$file);
+			throw new DotEnvException('error while reading file: '.$file);
 		}
 
 		return array_map('trim', $lines);
@@ -287,7 +294,12 @@ class DotEnv{
 			$kv = array_map('trim', explode('=', $line, 2));
 
 			// skip empty and numeric keys, keys with spaces, existing keys that shall not be overwritten
-			if(empty($kv[0]) || is_numeric($kv[0]) || strpos($kv[0], ' ') !== false || (!$overwrite && $this->get($kv[0]) !== false)){
+			if(
+				empty($kv[0])
+				|| is_numeric($kv[0])
+				|| strpos($kv[0], ' ') !== false
+				|| (!$overwrite && $this->get($kv[0]) !== false)
+			){
 				continue;
 			}
 
@@ -298,7 +310,7 @@ class DotEnv{
 	}
 
 	/**
-	 * @param string $value
+	 * @param string|null $value
 	 *
 	 * @return string|null
 	 */
@@ -319,9 +331,7 @@ class DotEnv{
 
 			// handle nested ${VARS}
 			if(strpos($value, '$') !== false){
-				$value = preg_replace_callback('/\${(?<var>[_a-z\d]+)}/i', function($matches){
-					return $this->get($matches['var']);
-				}, $value);
+				$value = preg_replace_callback('/\${(?<var>[_a-z\d]+)}/i', fn($matches) => $this->get($matches['var']), $value);
 			}
 
 		}
@@ -333,7 +343,7 @@ class DotEnv{
 	 * @param string[]|null $required - case sensitive!
 	 *
 	 * @return \chillerlan\DotEnv\DotEnv
-	 * @throws \Exception
+	 * @throws \chillerlan\DotEnv\DotEnvException
 	 */
 	protected function check(array $required = null):DotEnv{
 
@@ -343,7 +353,7 @@ class DotEnv{
 
 		foreach($required as $var){
 			if(!$this->isset($var)){
-				throw new \Exception('required variable not set: '.strtoupper($var));
+				throw new DotEnvException('required variable not set: '.strtoupper($var));
 			}
 		}
 
