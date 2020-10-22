@@ -259,7 +259,7 @@ class DotEnv{
 	 */
 	protected function read(string $file):array{
 
-		if(!is_readable($file) || !is_file($file)){
+		if(!is_file($file) || !is_readable($file)){
 			throw new DotEnvException('invalid file: '.$file);
 		}
 
