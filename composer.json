@@ -6,7 +6,7 @@
 	"type": "library",
 	"minimum-stability": "stable",
 	"keywords": [
-		"trait", "php7", "helper", "dotenv"
+		"dotenv", "env", "helper"
 	],
 	"authors": [
 		{
@@ -20,11 +20,11 @@
 		"source": "https://github.com/chillerlan/php-dotenv"
 	},
 	"require": {
-		"php": "^7.4"
+		"php": "^7.4 || ^8.0"
 	},
 	"require-dev": {
-		"phan/phan": "^2.7",
-		"phpunit/phpunit": "^9.1"
+		"phan/phan": "^3.2.2",
+		"phpunit/phpunit": "^9.4"
 	},
 	"autoload": {
 		"psr-4": {
