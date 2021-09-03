@@ -2,9 +2,7 @@
 /**
  * Class DotEnv
  *
- * @filesource   DotEnv.php
  * @created      07.09.2018
- * @package      chillerlan\DotEnv
  * @author       Smiley <smiley@chillerlan.net>
  * @copyright    2018 Smiley
  * @license      MIT

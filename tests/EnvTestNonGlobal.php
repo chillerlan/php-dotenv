@@ -2,9 +2,7 @@
 /**
  * Class EnvTestNonGlobal
  *
- * @filesource   EnvTestNonGlobal.php
  * @created      03.01.2018
- * @package      chillerlan\DotEnvTest
  * @author       Smiley <smiley@chillerlan.net>
  * @copyright    2018 Smiley
  * @license      MIT

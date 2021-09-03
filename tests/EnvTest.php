@@ -2,9 +2,7 @@
 /**
  * Class EnvTest
  *
- * @filesource   EnvTest.php
  * @created      25.11.2017
- * @package      chillerlan\DotEnvTest
  * @author       Smiley <smiley@chillerlan.net>
  * @copyright    2017 Smiley
  * @license      MIT
