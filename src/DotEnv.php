@@ -123,7 +123,7 @@ class DotEnv{
 		bool $global = null
 	):DotEnv{
 		$this->global = $global ?? true;
-		$file         = rtrim($path, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.($filename ?? '.env');
+		$file         = rtrim($path, '\\/').DIRECTORY_SEPARATOR.($filename ?? '.env');
 		$content      = $this->read($file);
 
 		return $this
