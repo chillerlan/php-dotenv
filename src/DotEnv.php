@@ -347,7 +347,7 @@ class DotEnv{
 	 */
 	protected function check(array $required = null):DotEnv{
 
-		if($required === null || empty($required)){
+		if(empty($required)){
 			return $this;
 		}
 
