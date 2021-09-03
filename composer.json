@@ -23,8 +23,8 @@
 		"php": "^7.4 || ^8.0"
 	},
 	"require-dev": {
-		"phan/phan": "^3.2.2",
-		"phpunit/phpunit": "^9.4"
+		"phan/phan": "^4.1",
+		"phpunit/phpunit": "^9.5"
 	},
 	"autoload": {
 		"psr-4": {
