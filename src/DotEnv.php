@@ -53,10 +53,6 @@ class DotEnv{
 
 	/**
 	 * DotEnv constructor.
-	 *
-	 * @param string      $path
-	 * @param string|null $filename
-	 * @param bool|null   $global
 	 */
 	public function __construct(string $path, string $filename = null, bool $global = null){
 		$this->path     = $path;
@@ -65,8 +61,6 @@ class DotEnv{
 	}
 
 	/**
-	 * @param string $var
-	 *
 	 * @return mixed|null
 	 */
 	public function __get(string $var){
@@ -75,45 +69,35 @@ class DotEnv{
 
 	/**
 	 * @param string $var
-	 * @param        $value
+	 * @param mixed  $value
 	 */
 	public function __set(string $var, $value):void{
 		$this->set($var, $value);
 	}
 
 	/**
-	 * @param string $var
 	 *
-	 * @return bool
 	 */
 	public function __isset(string $var):bool{
 		return $this->isset($var);
 	}
 
 	/**
-	 * @param string $var
+	 *
 	 */
 	public function __unset(string $var):void{
 		$this->unset($var);
 	}
 
 	/**
-	 * @param array|null $required
 	 *
-	 * @return \chillerlan\DotEnv\DotEnv
 	 */
 	public function load(array $required = null):DotEnv{
 		return $this->loadEnv($this->path, $this->filename, true, $required, $this->global);
 	}
 
 	/**
-	 * @param string      $path
-	 * @param string|null $filename
-	 * @param bool|null   $overwrite
-	 * @param array|null  $required
-	 * @param bool|null   $global
 	 *
-	 * @return \chillerlan\DotEnv\DotEnv
 	 */
 	public function loadEnv(
 		string $path,
@@ -133,20 +117,13 @@ class DotEnv{
 	}
 
 	/**
-	 * @param string      $path
-	 * @param string|null $filename
-	 * @param bool|null   $overwrite
-	 * @param array|null  $required
 	 *
-	 * @return \chillerlan\DotEnv\DotEnv
 	 */
 	public function addEnv(string $path, string $filename = null, bool $overwrite = null, array $required = null):DotEnv{
 		return $this->loadEnv($path, $filename, $overwrite, $required, $this->global);
 	}
 
 	/**
-	 * @param string $var
-	 *
 	 * @return mixed|null
 	 */
 	public function get(string $var){
@@ -173,10 +150,7 @@ class DotEnv{
 	}
 
 	/**
-	 * @param string      $var
-	 * @param string|null $value
 	 *
-	 * @return \chillerlan\DotEnv\DotEnv
 	 */
 	public function set(string $var, string $value = null):DotEnv{
 		$var   = strtoupper($var);
@@ -202,9 +176,7 @@ class DotEnv{
 	}
 
 	/**
-	 * @param string $var
 	 *
-	 * @return bool
 	 */
 	public function isset(string $var):bool{
 		return (
@@ -218,9 +190,7 @@ class DotEnv{
 	}
 
 	/**
-	 * @param string $var
 	 *
-	 * @return \chillerlan\DotEnv\DotEnv
 	 */
 	public function unset(string $var):DotEnv{
 		$var = strtoupper($var);
@@ -237,8 +207,6 @@ class DotEnv{
 
 	/**
 	 * use with caution!
-	 *
-	 * @return \chillerlan\DotEnv\DotEnv
 	 */
 	public function clear():DotEnv{
 
@@ -252,9 +220,6 @@ class DotEnv{
 	}
 
 	/**
-	 * @param string $file
-	 *
-	 * @return array
 	 * @throws \chillerlan\DotEnv\DotEnvException
 	 */
 	protected function read(string $file):array{
@@ -310,9 +275,7 @@ class DotEnv{
 	}
 
 	/**
-	 * @param string|null $value
 	 *
-	 * @return string|null
 	 */
 	protected function parse(string $value = null):?string{
 
@@ -342,7 +305,6 @@ class DotEnv{
 	/**
 	 * @param string[]|null $required - case sensitive!
 	 *
-	 * @return \chillerlan\DotEnv\DotEnv
 	 * @throws \chillerlan\DotEnv\DotEnvException
 	 */
 	protected function check(array $required = null):DotEnv{
