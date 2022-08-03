@@ -23,7 +23,7 @@
 		"php": "^7.4 || ^8.0"
 	},
 	"require-dev": {
-		"phan/phan": "^4.1",
+		"phan/phan": "^5.3",
 		"phpunit/phpunit": "^9.5"
 	},
 	"autoload": {
@@ -35,5 +35,14 @@
 		"psr-4": {
 			"chillerlan\\DotEnvTest\\": "tests/"
 		}
+	},
+	"scripts": {
+		"phpunit": "@php vendor/bin/phpunit",
+		"phan": "@php vendor/bin/phan"
+	},
+	"config": {
+		"lock": false,
+		"sort-packages": true,
+		"platform-check": true
 	}
 }

@@ -13,7 +13,7 @@
 namespace chillerlan\DotEnv;
 
 use function apache_getenv, apache_setenv, array_key_exists, array_map, explode, file, function_exists, getenv, implode,
-	in_array, ini_get, ini_set, is_array, is_file, is_numeric, is_readable, preg_replace, preg_replace_callback, putenv,
+	in_array, is_array, is_file, is_numeric, is_readable, preg_replace, preg_replace_callback, putenv,
 	rtrim, strpos, strtoupper, trim;
 
 use const DIRECTORY_SEPARATOR, FILE_IGNORE_NEW_LINES, FILE_SKIP_EMPTY_LINES, PHP_EOL;
@@ -226,11 +226,7 @@ class DotEnv{
 			throw new DotEnvException('invalid file: '.$file);
 		}
 
-		// Read file into an array of lines with auto-detected line endings
-		$autodetect = ini_get('auto_detect_line_endings');
-		ini_set('auto_detect_line_endings', '1');
 		$lines = file($file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-		ini_set('auto_detect_line_endings', $autodetect);
 
 		if(!is_array($lines) || empty($lines)){
 			throw new DotEnvException('error while reading file: '.$file);
