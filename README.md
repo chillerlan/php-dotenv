@@ -1,6 +1,6 @@
 # php-dotenv
 
-Loads contents from a `.env` file into the environment. PHP 7.4+
+Loads contents from a `.env` file into the environment. PHP 8.1+
 
 [![PHP Version Support][php-badge]][php]
 [![version][packagist-badge]][packagist]
@@ -29,7 +29,7 @@ Loads contents from a `.env` file into the environment. PHP 7.4+
 ## Installation
 **requires [composer](https://getcomposer.org)**
 
-*composer.json* (note: replace `dev-main` with a [version constraint](https://getcomposer.org/doc/articles/versions.md#writing-version-constraints))
+*composer.json* (note: replace `dev-main` with a [version constraint](https://getcomposer.org/doc/articles/versions.md#writing-version-constraints), e.g. `^3.0`)
 
 ```json
 {
