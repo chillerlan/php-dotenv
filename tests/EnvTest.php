@@ -7,6 +7,7 @@
  * @copyright    2017 Smiley
  * @license      MIT
  */
+declare(strict_types=1);
 
 namespace chillerlan\DotEnvTest;
 
@@ -37,16 +38,16 @@ class EnvTest extends TestCase{
 
 	public function testLoadRequiredVarMissing():void{
 		$this->expectException(DotEnvException::class);
-		$this->expectExceptionMessage('required variable not set: FOO');
+		$this->expectExceptionMessage('required variable(s) not set: "FOO, BAR"');
 
-		$this->dotenv->load(['foo']);
+		$this->dotenv->load(['foo', 'bar']);
 	}
 
 	public function testAddEnv():void{
 		$this->dotenv->addEnv(__DIR__, '.env_test');
 		$this::assertNull($this->dotenv->get('foo'));
 
-		$this->dotenv->addEnv(__DIR__, '.another_env', true, ['FOO']); // case sensitive here!
+		$this->dotenv->addEnv(__DIR__, '.another_env', true, ['FOO']); // case-sensitive here!
 		$this::assertSame('BAR', $this->dotenv->get('foo'));
 	}
 
@@ -80,8 +81,8 @@ class EnvTest extends TestCase{
 		$this::assertTrue(isset($this->dotenv->TEST));
 		unset($this->dotenv->TEST);
 		$this::assertFalse(isset($_ENV['TEST']));
-		$this::assertFalse($this->dotenv->get('test'));
-		$this::assertFalse($this->dotenv->test);
+		$this::assertNull($this->dotenv->get('test'));
+		$this::assertNull($this->dotenv->test);
 
 		// generic
 		$this->dotenv->set('TESTVAR', 'some value: ${var3}');

@@ -9,13 +9,13 @@
  *
  * @noinspection PhpComposerExtensionStubsInspection
  */
+declare(strict_types=1);
 
 namespace chillerlan\DotEnv;
 
-use function apache_getenv, apache_setenv, array_key_exists, array_map, explode, file, function_exists, getenv, implode,
-	in_array, is_array, is_file, is_numeric, is_readable, preg_replace, preg_replace_callback, putenv,
-	rtrim, strpos, strtoupper, trim;
-
+use function apache_getenv, apache_setenv, array_key_exists, array_map, explode, file, function_exists, getenv,
+	implode, in_array, is_array, is_file, is_numeric, is_readable, preg_replace, preg_replace_callback, putenv,
+	rtrim, sprintf, str_contains, str_starts_with, strtoupper, trim;
 use const DIRECTORY_SEPARATOR, FILE_IGNORE_NEW_LINES, FILE_SKIP_EMPTY_LINES, PHP_EOL;
 
 /**
@@ -23,7 +23,6 @@ use const DIRECTORY_SEPARATOR, FILE_IGNORE_NEW_LINES, FILE_SKIP_EMPTY_LINES, PHP
  *
  * $_ENV > getenv()!
  *
- * @link https://github.com/vlucas/phpdotenv
  * @link http://php.net/variables-order
  */
 class DotEnv{
@@ -47,62 +46,49 @@ class DotEnv{
 	/**
 	 * an optional file name in case it differs from ".env"
 	 */
-	protected ?string $filename;
+	protected string|null $filename;
 
 	/**
 	 * DotEnv constructor.
 	 */
-	public function __construct(string $path, string $filename = null, bool $global = null){
+	public function __construct(string $path, string|null $filename = null, bool|null $global = null){
 		$this->path     = $path;
 		$this->filename = $filename;
-		$this->global   = $global ?? true; // emulate vlucas/dotenv behaviour by default
+		$this->global   = $global ?? true;
 	}
 
-	/**
-	 * @return mixed|null
-	 */
-	public function __get(string $var){
+	public function __get(string $var):string|null{
 		return $this->get($var);
 	}
 
-	/**
-	 * @param string $var
-	 * @param mixed  $value
-	 */
-	public function __set(string $var, $value):void{
+	public function __set(string $var, string|null $value):void{
 		$this->set($var, $value);
 	}
 
-	/**
-	 *
-	 */
 	public function __isset(string $var):bool{
 		return $this->isset($var);
 	}
 
-	/**
-	 *
-	 */
 	public function __unset(string $var):void{
 		$this->unset($var);
 	}
 
 	/**
-	 *
+	 * (re-)loads the currently set .env file into the environment
 	 */
-	public function load(array $required = null):DotEnv{
+	public function load(array|null $required = null):DotEnv{
 		return $this->loadEnv($this->path, $this->filename, true, $required, $this->global);
 	}
 
 	/**
-	 *
+	 * loads a .env file into the environment
 	 */
 	public function loadEnv(
-		string $path,
-		string $filename = null,
-		bool $overwrite = null,
-		array $required = null,
-		bool $global = null
+		string      $path,
+		string|null $filename = null,
+		bool|null   $overwrite = null,
+		array|null  $required = null,
+		bool|null   $global = null,
 	):DotEnv{
 		$this->global = $global ?? true;
 		$file         = rtrim($path, '\\/').DIRECTORY_SEPARATOR.($filename ?? '.env');
@@ -115,16 +101,21 @@ class DotEnv{
 	}
 
 	/**
-	 *
+	 * adds the values from the given .env to the currently set values
 	 */
-	public function addEnv(string $path, string $filename = null, bool $overwrite = null, array $required = null):DotEnv{
+	public function addEnv(
+		string      $path,
+		string|null $filename = null,
+		bool|null   $overwrite = null,
+		array|null  $required = null,
+	):DotEnv{
 		return $this->loadEnv($path, $filename, $overwrite, $required, $this->global);
 	}
 
 	/**
-	 * @return mixed|null
+	 * gets a variable from the environment
 	 */
-	public function get(string $var){
+	public function get(string $var):string|null{
 		$var = strtoupper($var);
 		$env = null;
 
@@ -144,13 +135,19 @@ class DotEnv{
 
 		}
 
-		return $env ?? $this->_ENV[$var] ?? null;
+		$value = $env ?? $this->_ENV[$var];
+
+		if(empty($value)){
+			return null;
+		}
+
+		return $value;
 	}
 
 	/**
-	 *
+	 * sets a variable in the environment
 	 */
-	public function set(string $var, string $value = null):DotEnv{
+	public function set(string $var, string|null $value = null):DotEnv{
 		$var   = strtoupper($var);
 		$value = $this->parse($value);
 
@@ -174,21 +171,29 @@ class DotEnv{
 	}
 
 	/**
-	 *
+	 * checks if the given variable is set in the environment
 	 */
 	public function isset(string $var):bool{
-		return (
-				$this->global && (
-					isset($_ENV[$var])
-					|| getenv($var)
-					|| (function_exists('apache_getenv') && apache_getenv($var))
-				)
-			)
-			|| array_key_exists($var, $this->_ENV);
+
+		if($this->global === true){
+
+			// @codeCoverageIgnoreStart
+			if(function_exists('apache_getenv') && apache_getenv($var)){
+				return true;
+			}
+			// @codeCoverageIgnoreEnd
+
+			if(getenv($var) || !empty($_ENV[$var])){
+				return true;
+			}
+		}
+
+
+		return !empty($this->_ENV[$var]);
 	}
 
 	/**
-	 *
+	 * unsets/removes a variable from the environment)
 	 */
 	public function unset(string $var):DotEnv{
 		$var = strtoupper($var);
@@ -196,6 +201,12 @@ class DotEnv{
 		if($this->global === true){
 			unset($_ENV[$var]);
 			putenv($var);
+
+			// @codeCoverageIgnoreStart
+			if(function_exists('apache_setenv')){
+				apache_setenv($var, '');
+			}
+			// @codeCoverageIgnoreEnd
 		}
 
 		unset($this->_ENV[$var]);
@@ -204,6 +215,8 @@ class DotEnv{
 	}
 
 	/**
+	 * clears the environment variables (in $_ENV)
+	 *
 	 * use with caution!
 	 */
 	public function clear():DotEnv{
@@ -218,6 +231,8 @@ class DotEnv{
 	}
 
 	/**
+	 * reads the given .env file
+	 *
 	 * @throws \chillerlan\DotEnv\DotEnvException
 	 */
 	protected function read(string $file):array{
@@ -236,17 +251,16 @@ class DotEnv{
 	}
 
 	/**
-	 * @param string[] $data
-	 * @param bool     $overwrite
+	 * loads a data array
 	 *
-	 * @return \chillerlan\DotEnv\DotEnv
+	 * @see \chillerlan\DotEnv\DotEnv::read()
 	 */
 	protected function loadData(array $data, bool $overwrite):DotEnv{
 
 		foreach($data as $line){
 
 			// skip empty lines and comments
-			if(empty($line) || strpos($line, '#') === 0){
+			if(empty($line) || str_starts_with($line, '#')){
 				continue;
 			}
 
@@ -256,7 +270,7 @@ class DotEnv{
 			if(
 				empty($kv[0])
 				|| is_numeric($kv[0])
-				|| strpos($kv[0], ' ') !== false
+				|| str_contains($kv[0], ' ')
 				|| (!$overwrite && $this->get($kv[0]) !== false)
 			){
 				continue;
@@ -269,48 +283,54 @@ class DotEnv{
 	}
 
 	/**
-	 *
+	 * parses the given value
 	 */
-	protected function parse(string $value = null):?string{
+	protected function parse(string|null $value = null):string{
 
-		if($value !== null){
+		if($value === null){
+			return '';
+		}
 
-			$q = $value[0] ?? null;
+		$q = $value[0] ?? null;
 
-			$value = in_array($q, ["'", '"'], true)
-				// handle quoted strings
-				? preg_replace("/^$q((?:[^$q\\\\]|\\\\\\\\|\\\\$q)*)$q.*$/mx", '$1', $value)
-				// skip inline comments
-				: trim(explode('#', $value, 2)[0]);
+		$value = in_array($q, ["'", '"'], true)
+			// handle quoted strings
+			? preg_replace("/^$q((?:[^$q\\\\]|\\\\\\\\|\\\\$q)*)$q.*$/mx", '$1', $value)
+			// skip inline comments
+			: trim(explode('#', $value, 2)[0]);
 
-			// handle multiline values
-			$value = implode(PHP_EOL, explode('\\n', $value));
+		// handle multiline values
+		$value = implode(PHP_EOL, explode('\\n', $value));
 
-			// handle nested ${VARS}
-			if(strpos($value, '$') !== false){
-				$value = preg_replace_callback('/\${(?<var>[_a-z\d]+)}/i', fn($matches) => $this->get($matches['var']), $value);
-			}
-
+		// handle nested ${VARS}
+		if(str_contains($value, '$')){
+			$value = preg_replace_callback('/\${(?<var>[_a-z\d]+)}/i', fn($matches) => $this->get($matches['var']), $value);
 		}
 
 		return $value;
 	}
 
 	/**
-	 * @param string[]|null $required - case sensitive!
+	 * checks if a set of keys exists in the environment - case-sensitive!
 	 *
 	 * @throws \chillerlan\DotEnv\DotEnvException
 	 */
-	protected function check(array $required = null):DotEnv{
+	protected function check(array|null $required = null):DotEnv{
 
 		if(empty($required)){
 			return $this;
 		}
 
+		$checked = [];
+
 		foreach($required as $var){
 			if(!$this->isset($var)){
-				throw new DotEnvException('required variable not set: '.strtoupper($var));
+				$checked[] = strtoupper($var);
 			}
+		}
+
+		if(!empty($checked)){
+			throw new DotEnvException(sprintf('required variable(s) not set: "%s"', implode(', ', $checked)));
 		}
 
 		return $this;

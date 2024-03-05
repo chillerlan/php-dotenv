@@ -1,12 +1,11 @@
 # php-dotenv
 
-Loads contents from a `.env` file into the environment (similar to [vlucas/phpdotenv](https://github.com/vlucas/phpdotenv)). PHP 7.4+
+Loads contents from a `.env` file into the environment. PHP 7.4+
 
 [![PHP Version Support][php-badge]][php]
 [![version][packagist-badge]][packagist]
 [![license][license-badge]][license]
 [![Coverage][coverage-badge]][coverage]
-[![Scrunitizer][scrutinizer-badge]][scrutinizer]
 [![Packagist downloads][downloads-badge]][downloads]
 [![CI][gh-action-badge]][gh-action]
 
@@ -35,7 +34,7 @@ Loads contents from a `.env` file into the environment (similar to [vlucas/phpdo
 ```json
 {
 	"require": {
-		"php": "^7.4",
+		"php": "^8.1",
 		"chillerlan/php-dotenv": "dev-main"
 	}
 }
