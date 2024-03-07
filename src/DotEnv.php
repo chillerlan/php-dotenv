@@ -135,7 +135,7 @@ class DotEnv{
 
 		}
 
-		$value = $env ?? $this->_ENV[$var];
+		$value = $env ?? $this->_ENV[$var] ?? null;
 
 		if(empty($value)){
 			return null;
